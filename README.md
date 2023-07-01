@@ -7,4 +7,5 @@
 # done
 
 - 柵の乱数化
+- fbx -(meshlab)-> obj -> povによる草のインポート
 - カメラ設置
