@@ -4,6 +4,7 @@
 #include "metals.inc"
 #include "textures.inc" 
 #include "skies.inc"    
+#include "tree01.inc"
 
 sky_sphere {
   S_Cloud5
@@ -25,7 +26,7 @@ sky_sphere {
         camera{
             location <0,50,10>
             look_at<0,47,30>
-            angle 60
+            angle 40
         }
     #break
     #case(2)
@@ -43,6 +44,24 @@ sky_sphere {
  
 light_source{<1000,2000,-1000> color 4*White}  
 
+object{
+    TREE
+    scale 200
+    translate <200,400,50>
+}
+
+object{
+    TREE    
+    scale 200
+    translate <200,400,150>
+}
+
+object{
+    TREE    
+    scale 200
+    translate <200,400,100>
+}
+
 
 // 光源の設定
 //light_source { <5, 50, -10> color rgb <1,1,1> } // 光源の位置と色
@@ -52,6 +71,9 @@ light_source{<1000,2000,-1000> color 4*White}
 
 #declare axis_diamiter = 2;
 
+#declare show = 0;
+
+#if (show >= 1)
 object{ //x-axis
     cylinder{<-5000,0,0>,<5000,0,0>,axis_diamiter}
     pigment{color White}
@@ -64,6 +86,8 @@ object{ //z-axis
     cylinder{<0,0,-5000>,<0,0,5000>,axis_diamiter}
     pigment{color White}
 }
+#else
+#end
 
 // start grid
 
@@ -80,21 +104,23 @@ object{ //z-axis
     Gray65,
 };
 
-#macro axline(p,axis,clr_num)
-object{
-    cylinder{p+1000*axis,p-1000*axis,1}
-    pigment{color colors[clr_num]}
-}
-#end
-
-
-#declare i = 0;
-#while (i<=8)
-    axline(<0,0,100*i>,x,i)
-    axline(<100*i,0,0>,z,i)
-    axline(<0,0,-100*i>,x,i)
-    axline(<-100*i,0,0>,z,i)
-    #declare i = i + 1;
+#if (show>=1)
+    #macro axline(p,axis,clr_num)
+    object{
+        cylinder{p+1000*axis,p-1000*axis,1}
+        pigment{color colors[clr_num]}
+    }
+    #end
+    
+    
+    #declare i = 0;
+    #while (i<=8)
+        axline(<0,0,100*i>,x,i)
+        axline(<100*i,0,0>,z,i)
+        axline(<0,0,-100*i>,x,i)
+        axline(<-100*i,0,0>,z,i)
+        #declare i = i + 1;
+    #end
 #end
 
 //end grid
@@ -133,27 +159,11 @@ triarrows(100,10,100,100)
 
 
 
-// 床の定義
-box {
-    <-1000, -0.01, -1000>, // 床の一角（x, y, z）※床の厚みを0.01ユニットとした
-    <1000, 0, 1000> // 床の対角線上の角
-    texture {
-        pigment { 
-            image_map{
-                jpeg "terra.jpg"
-            } 
-            scale <100,100,1>
-            rotate 90*x
-        } 
-    }
-}
-
 // make poles
 
 #macro pole(bx,bz,h)
 object{
     cylinder{<bx,0,bz>,<bx,h,bz>,5}
-    pigment{color Brown}
 }
 #end
 
@@ -188,6 +198,37 @@ object{
 // make pole
 
 #macro pole(bx,bz,h)
+    myrand(rnd)
+    #declare r1 = rnd;
+    myrand(rnd)
+    #declare r2 = rnd;
+    myrand(rnd)
+    #declare r3 = rnd;
+    myrand(rnd)
+    #declare r4 = rnd;
+    myrand(rnd)
+    #declare r5 = rnd;
+    object{
+        cylinder{<bx+r1,0,bz+r2>,<bx+r3,h+r4,bz+r5>,5}
+        pigment{
+            image_map{
+                jpeg "./wood.jpeg"
+            }
+            scale <100,100,1>
+        }
+    }
+#end
+
+
+
+//make poles
+
+#declare gap = 50;
+#declare oppression = 3; //／どれだけz軸によっていくか
+
+// grass pole
+
+#declare i = 0;
 myrand(rnd)
 #declare r1 = rnd;
 myrand(rnd)
@@ -196,10 +237,35 @@ myrand(rnd)
 #declare r3 = rnd;
 myrand(rnd)
 #declare r4 = rnd;
-myrand(rnd)
-#declare r5 = rnd;
+
+#declare shift = 12;
+#declare shiftz = 20;
 object{
-    cylinder{<bx+r1,0,bz+r2>,<bx+r3,h+r4,bz+r5>,5}
+    cylinder{<30-oppression*i+r1-shift,30+r2*3,100+gap*i-shiftz>,<30-oppression*(i+1)+r3,30+r4*3,100+gap*(i+1)>,5}
+    material{M_Glass3}
+}
+
+#declare bx = 30-oppression*i;
+#declare bz = 100+gap*i;
+#declare h = 40;
+object{
+    cylinder{<bx-shift,0,bz-shiftz>,<bx-shift,h,bz-shiftz>,8}
+    material{M_Glass3}
+}
+
+
+#declare i = 1;
+myrand(rnd)
+#declare r1 = rnd;
+myrand(rnd)
+#declare r2 = rnd;
+myrand(rnd)
+#declare r3 = rnd;
+myrand(rnd)
+#declare r4 = rnd;
+#declare shift = 3;
+object{
+    cylinder{<30-oppression*i+r1-shift,30+r2*3,100+gap*i>,<30-oppression*(i+1)+r3-shift,30+r4*3,100+gap*(i+1)>,5}
     pigment{
         image_map{
             jpeg "./wood.jpeg"
@@ -207,14 +273,18 @@ object{
         scale <100,100,1>
     }
 }
-#end
 
+#declare bx = 30-oppression*i;
+#declare bz = 100+gap*i;
+#declare h = 40;
+object{
+    cylinder{<bx-shift,0,bz>,<bx-shift,h,bz>,6}
+    material{M_Orange_Glass}
+}
 
-//make poles
+// wood poles
 
-#declare i = 0;
-#declare gap = 50;
-#declare oppression = 3; //／どれだけz軸によっていくか
+#declare i = 2;
 #while(i<6)
     pole(30-oppression*i,100+gap*i,40)
     myrand(rnd)
@@ -286,20 +356,29 @@ object {
 #end
 #end
 
+#macro paper_weed(p,scl)
+    object {
+    	WEED
+        translate p 
+        pigment{color White}
+        scale scl
+    }
+#end
+
 
 
 
 
 #declare r = seed (1);
 #declare i = 0;
-#while (i<800)
+#while (i<500)
     object{
-        weed(<0,0,0>,1)
+        weed(<0,0,0>,0.7)
         rotate (60*rand(r))*z
         rotate 30-60*rand(r)*x
         rotate 360*rand(r)*y
         scale 1.5*rand(r)
-        translate <-300*rand(r),0,50+300*rand(r)>
+        translate <-200*rand(r),0,150+100*rand(r)>
         rotate -60*z
         translate <-30,0,0>
     }
@@ -307,16 +386,34 @@ object {
 #end
 
 
+
+
 #declare r = seed (2);
 #declare i = 0;
 #while (i<100)
     object{
-        weed(<0,0,0>,1)
+        paper_weed(<0,0,0>,0.7)
         rotate (60*rand(r))*z
         rotate 30-60*rand(r)*x
         rotate 360*rand(r)*y
         scale 2*rand(r)
-        translate <-100*rand(r),0,50+100*rand(r)>
+        translate <-100*rand(r),0,100+50*rand(r)>
+        rotate -60*z
+        translate <-30,0,0>
+    }
+    #declare i = i + 1;
+#end
+
+#declare r = seed (2);
+#declare i = 0;
+#while (i<10)
+    object{
+        paper_weed(<0,0,0>,0.7)
+        rotate (60*rand(r))*z
+        rotate 30-60*rand(r)*x
+        rotate 360*rand(r)*y
+        scale 2*rand(r)
+        translate <-50*rand(r),0,125+25*rand(r)>
         rotate -60*z
         translate <-30,0,0>
     }
@@ -326,12 +423,13 @@ object {
 
 object{
 
-    box{<0,0,0>,<-300,1,400>
+    box{<0,0,0>,<-300,1,200>
         //texture {Brown}
         pigment{
             image_map{
-                jpeg "./terra2.jpeg"
+                png"./weed.png"
             }
+            scale <1000,1,1000>
         }
 
     }
@@ -339,18 +437,83 @@ object{
     translate <-30,0,0>
 }
 
+
+//back ground
 object{
     box{<-1000,-1000,2000>,<1000,1000,2001>
-        pigment{
-            image_map{
-                png "./model.png"
-            }
-
-        }
-        scale  <1000,1000,1>
-        translate <-500,-450,0>
+      pigment{
+          image_map{
+              jpeg "./background2_flip.jpg"
+              once
+          }
+      }
+      scale  <1000,1000,1>
+      translate <-500,-500,0>
     }
 }
 
 
-    
+//make tree
+object { 
+    TREE 
+    scale 200
+    translate <100,-50,150 >
+}
+
+object { 
+    TREE 
+    scale 200
+    translate <100,-50,500 >
+}
+
+object { 
+    TREE 
+    scale 200
+    translate <100,-50,700 >
+}
+
+// left side tree
+
+object { 
+    TREE 
+    scale 200
+    translate <-100,-50,500>
+}
+
+// fallen tree
+
+object { 
+    TREE 
+    scale 300
+    translate <0,0,700>
+    rotate -85*z
+    translate <-100,0,0>
+}
+
+// floor 
+
+box {
+    <-70, -0.01, -700>, // 床の一角（x, y, z）※床の厚みを0.01ユニットとした
+    <100, 0, 700> // 床の対角線上の角
+    texture {
+        pigment { 
+            image_map{
+                jpeg "terra.jpg"
+            } 
+            scale <100,100,1>
+            rotate 90*x
+        } 
+    }
+}
+
+#declare r = seed(12);
+#declare r1 = seed(11);
+#declare i = 0;
+#while (i<100)
+    object{
+        weed(<0,0,0>,0.1)
+
+        translate <-50+100*rand(r1),0,500*rand(r)>
+    }
+    #declare i = i + 1;
+#end
